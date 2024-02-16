@@ -1,0 +1,1264 @@
+local jenkins
+
+FROM jenkins/jenkins:lts
+USER root
+RUN apt-get update
+RUN curl -sSL https://get.docker.com/ | sh
+
+sudo docker build -t jenkins .
+sudo docker run -d -p6060:8080 -v /var/run/docker.sock:/var/run/docker.sock jenkins
+cat /var/jenkins_home/secrets/initialAdminPassword
+
+---------------------------------------------------------
+	
+	Büttün envorinment ler
+		https://github.com/HYOnTheWay/conf/blob/master/redis.conf
+		
+	/data # redis-cli -h 127.0.0.1 -p 6379 -a Redis1234
+	127.0.0.1:6379> config get notify-keyspace-events
+	1) "notify-keyspace-events"
+	2) "AKE"
+	127.0.0.1:6379>
+	
+	Jenkins configure webhook - Post content parameters
+	$.pullRequest.toRef.id ??? $.changes[*].refId
+
+
+zsh
+oc get pods --selector app=redis-cluster -o jsonpath='{range.items[*]}{.status.podIP}:6379 '
+
+oc terminal
+redis-cli -a 'Redis1234' --cluster create 100.127.23.232:6379 100.127.26.35:6379 100.127.1.185:6379 100.127.29.225:6379 100.127.2.20:6379 100.127.28.2:6379 --cluster-replicas 1
+yes
+
+redis-cli -a 'Redis1234' --cluster create redis-0.redis.rsmnsaddev.svc.cluster.local:6379 redis-1.redis.rsmnsaddev.svc.cluster.local:6379 redis-2.redis.rsmnsaddev.svc.cluster.local:6379 redis-3.redis.rsmnsaddev.svc.cluster.local:6379 redis-4.redis.rsmnsaddev.svc.cluster.local:6379 redis-5.redis.rsmnsaddev.svc.cluster.local:6379 --cluster-replicas 1
+
+redis-cli -a 'Redis1234' --cluster create --cluster-replicas 1 $(kubectl get pods -l app=redis-cluster -o jsonpath='{range.items[*]}{.status.podIP}:6379 ')
+
+kubectl exec redis-0 -- nslookup redis
+
+redis-cli -a '8X1RBtHapY'
+redis-cli -a 'Redis1234'
+KEYS *
+HGETALL ZONE
+
+redis-cli HGETALL TRANSFERS_DASHBOARD
+
+redis-cli cluster info
+auth Redis1234
+OK
+
+for x in $(seq 0 5); do echo "redis-cluster-$x"; kubectl exec redis-cluster-$x -- redis-cli role;echo; done
+redis-cli role
+
+redis-cli -h redis -p 6379 -a ${REDIS_PASSWORD} ve ya 'Redis1234' 
+
+curl -w '\n' http://redis-1.redis.rsmnsaddev.svc.cluster.local:6379/ping
+
+curl -w '\n' http://redis.rsmnsaddev.svc.cluster.local:6379/ping
+
+curl -w '\n' http://redis-ext-service:6379/ping
+exec 3<>/dev/tcp/redis/6379 && echo -e "PING\r\n" >&3 && head -c 7 <&3  
+curl -v primary.stock.svc.cluster.local:6379 --max-time 1
+curl -v replica.rsmnsaddev.svc.cluster.local:6379 --max-time 1
+30367
+
+primary.stock.svc.cluster.local
+
+CONFIG SET requirepass "Redis1234"
+
+client list
+
+config get requirepass
+config set requirepass Redis1234
+
+config set slaveof 100.127.27.102 6379
+
+$redis-cli -p 6379
+127.0.0.1:7000> flushall
+127.0.0.1:7000> cluster reset
+127.0.0.1:7000> exit
+
+cluster slots
+
+redis-cli -a 'Redis1234' 
+cluster failover takeover
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            timeoutSeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 9080
+              scheme: HTTP
+            initialDelaySeconds: 60
+            timeoutSeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 30
+			
+			
+			
+			
+{
+	"event": {
+		"data": {
+			"data": { },
+			"target": {
+				"type": "user",
+				"user_type": "shop"
+			},
+			"type": "updateApp"
+		}
+	}
+}
+
+		
+		
+billing-service
+api/retry
+api/sync
+api/billingToErp	
+		
+			
+byp-service
+/api/byp/clear
+/api/byp/store/sync
+/api/byp/store
+/api/byp/store/clear
+/invoiceInfo/add
+/invoiceInfo/xls
+/api/byp/user/sync
+/api/byp/user/clear
+/zone/cities
+/zone/districts
+/zone/districtAll
+/zone/clear
+
+
+erp-service
+/api/dealer/create
+/api/fail/list
+/api/invoice/list
+/api/invoice/success
+/api/payment/list
+/api/payment/success
+/api/warehouseReceipt/list
+/api/warehouseReceipt/success
+/api/warehouseReceipt/convertToWarehouseReceipt
+/api/warehouseReceipt/getTransfersFromErp
+/api/warehouseReceipt/getVirtualStoresFromErp
+
+
+mediator-service
+/api/invoice/signup
+/api/invoice/integrator/cache/sync
+/api/invoice/integrator/cache/clear
+/api/invoice/getErrorMessage
+/api/invoice/files
+
+
+sales-service
+/api/campaign
+/api/invoice/create
+/api/invoice/cancel
+/api/receipt/create
+/api/sales-service/getSalesByStoreCode
+/api/sales-service/getStatusList
+/api/sales-service/getOrderDetail
+/api/sales-service/updateSessionStatus
+
+
+stock-service
+/api/excel/upload ***
+/api/excel/edit
+/api/excel/list
+/api/stock-card
+/api/sync-stock-card
+/api/stock-card/save-bundle
+/api/stock-card/syncAll
+/api/stock-card/search
+/api/stock-card/childsByIdList
+/api/stock-card/barcodeOrImeiList
+/api/stock-card/syncAllToElasticDb
+/api/stock-card/products
+/api/stock-card/stockCardByName
+/api/stock-card/productsInStore
+/api/stock-card/productItems
+/api/stock-card/branchStoresProductItems
+/api/stock-card/branchStoresByStoreCode
+/api/stock-card/saveBarcode
+/api/stock-card/findAllBasicBySkuList
+/api/stock-card/validateSkuList
+/api/stock-card/findByDate
+/api/stock-category
+/api/stock-category-type
+/api/stock-price/saveOrUpdateProductPrice
+/api/stock-segment
+/api/stock-transaction/doSale
+/api/stock-transaction/doCampaign
+/api/stock-transaction/doTransfer
+/api/stock-transaction/doStorePurchase
+/api/stock-transaction/deleteStorePurchase
+/api/stock-transaction/update-imeis-matched-with-wrong-sku
+/api/stock-transaction/set-to-passive-imei-or-barcode
+/api/stock-transaction/doBatchStorePurchase
+/api/stock-transaction/listSummaryTransaction
+/api/stock-transaction/doRetry
+/api/stock-transaction/cancelSalesTransactionForShop
+/api/stock-variant
+/api/stock-variant-type
+
+
+store-service
+/api/siebel/{queryParam}
+/api/products/search
+/api/store/sales-person
+/api/store/cities
+/api/store/districts
+/api/store/districtAll
+
+
+supplier-service
+/my-orders/list
+/my-orders/status-list
+/my-orders/supplier-list
+/my-orders/approve-order
+/my-orders/reject-order
+/delivery/create-delivery-order
+/delivery/get-delivery-order
+/delivery/get-delivery-order-list
+/delivery/cancel-delivery-order
+/return-order/create-return-order
+/return-order/get-return-order
+/return-order/get-return-order-list
+
+
+transfer-service
+/api/transfer-object/doTransferBetweenShopsBySaveds
+/api/transfer-object/doTransferInvestorsBySaveds
+/api/transfer-object/doShopTransferSaveAndQuitBySaveds
+/api/transfer-object/doInvestorTransferSaveAndQuitBySaveds
+/api/transfer-object/saveds
+/api/transfer/sales-person
+/api/transfer/shop-list
+/api/transfer/investor-list
+/api/transfer-object/doTransferBetweenShops
+/api/transfer-object/doTransferInvestors
+/api/transfer-object/doShopTransferSaveAndQuit
+/api/transfer-object/doInvestorTransferSaveAndQuit
+/api/transfer-object/completedTransferBetweenShops
+/api/transfer-object/completedTransferBetweenInvestors
+/api/transfer-object/cancelledTransferBetweenShops
+/api/transfer-object/cancelledTransferBetweenInvestors
+
+
+
+mvn clean compile -U
+mvn clean compile -P local
+
+curl -v telnet://10.74.2.149:25
+curl -v telnet://172.24.100.50:4411
+curl -v telnet://github.com/sirensolutions/sentinl/releases/download/tag-6.2.2/sentinl-v6.2.2.zip
+curl -v telnet://mail.vodafone.local:25
+	
+	msisdn: yup
+		.number()
+		.test('maxDigits', 'GSM No 10 karakter olmalı', number => /^(0|[1-9][0-9]{9})$/i.test(String(number) || ''))
+		.required('*GSM bilgisinin girilmesi zorunludur.'),
+		
+
+			imei search  ok
+
+
+const storeListAdapter = createEntityAdapter<string>({
+	sortComparer: (a, b) => a.localeCompare(b)
+});
+
+export const { selectAll: selectBranchStoreList } = storeListAdapter.getSelectors(
+	(state: any) => state.stock.transfer.list.storeList
+);
+
+
+	storeList: EntityState<string>;
+	
+	
+	
+	
+	ALTER USER postgres WITH PASSWORD '112233';
+	
+
+-Dappdynamics.agent.nodeName=${APPDYNAMICS_AGENT_NODE_NAME_PREFIX}
+export APPDYNAMICS_AGENT_NODE_NAME_PREFIX=$HOSTNAME
+
+    requirepass Redis1234
+    masterauth Redis1234 ????
+'redis:5-alpine'
+
+-------------------
+	kubectl run -i --tty ubuntu --image=ubuntu --restart=Never /bin/bash
+---------------------------------
+	
+	Jenkins Grafana entegrasyonu
+	appDynamics prod
+	service kurulumları exim, collection, eliasticClient
+	redis
+	alert alternatif
+	
+	
+	appuio/signalilo
+	jordan/icinga2
+	
+	90V!954D@27%U33GtM%0
+	
+	nagiosadmin
+	nagios
+	
+	100.127.26.162
+	
+	jasonrivers/nagios
+	jasonrivers/nagios:latest
+	
+	mavenquist/nagios-xi
+	nagiosadmin
+	ULoTY,%oBHdsLAHbhVIs
+	
+	mohd
+	appdyno hostname???
+	servis jenkins
+	
+	
+	({call}-{error})/{call}*100
+	
+	clusterIp none
+	config e ip ekle
+	
+	
+	
+	
+	{
+	    "type": "1",
+	    "severity": "4",
+	    "alertgroup": "SOTAlertGroup",
+	    "alertkey": "LoginPage",
+	    "description": "Alarm has been generated in the login service.",
+	    "node": "SOT",
+	    "department": "StoreOnTablet",
+	    "occurrencedate": "15-12-2020 14:00:00",
+	    "tablename": "italarm"
+	}
+	
+	
+
+	docker build -t nagios-plugins .
+	docker tag nagios-plugins 172.24.100.50:4411/stock-test/nagios
+	docker push 172.24.100.50:4411/stock-test/nagios
+	
+	openshift APPDYNAMICS_ENV prod
+	yaml eklemeleri
+	merge
+	kontrol doğru image mı 
+	
+	store-service ---> siebel-service
+	dev branch leri deploy service lerde
+	yeni kurulumlar
+	
+	
+	
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kubewatch
+  namespace: rsmnsaddev
+spec:
+  containers:
+  - image: tuna/kubewatch:v0.0.1
+    imagePullPolicy: Always
+    name: kubewatch
+    volumeMounts:
+    - name: config-volume
+      mountPath: /root
+    securityContext:
+      runAsUser: 
+        type: MustRunAs
+  serviceAccount: kubewatch
+  serviceAccountName: kubewatch
+  restartPolicy: Always
+  volumes:
+  - name: config-volume
+    configMap:
+      name: kubewatch
+	  
+	  
+	  rabbitmq gibi bağlantılar, eksik bağlantılar var
+	  
+	
+	
+	
+	export PATH=”$PATH:/USERS/MAC8/Documents/flutter/bin” 
+	
+	/*
+	    public RedisClusterConfiguration redisClusterConfiguration() {
+
+	        RedisClusterConfiguration redisClusterConfiguration = new RedisClusterConfiguration();
+	        String[] hosts = clusterNodes.split(":");
+	        Set<RedisNode> redisNodes = new HashSet<>();
+	        redisNodes.add(new RedisClusterNode(hosts[0], Integer.valueOf(hosts[1])));
+	        redisClusterConfiguration.setClusterNodes(redisNodes);
+	//        redisClusterConfiguration.setMaxRedirects(redisProperties.getMaxRedirects());
+	        return redisClusterConfiguration;
+
+	    }*/
+		
+		
+
+pods_on_node.py -u billing-service --node node_name
+	                  --warn int_of_pods --crit int_of_pods
+		
+		
+
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis
+  namespace: rsmnsadsat
+spec:
+  ports:
+    - name: client
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
+    - name: gossip
+      protocol: TCP
+      port: 16379
+      targetPort: 16379
+  selector:
+    app: redis
+  type: ClusterIP
+  sessionAffinity: None
+
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis-ext-service
+  namespace: rsmnsaddev
+  labels:
+    app: redis
+spec:
+  ports:
+    - name: redisport
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
+      nodePort: 30367
+  selector:
+    app: redis
+  clusterIP: 100.126.69.129
+  type: NodePort
+  sessionAffinity: None
+  externalTrafficPolicy: Cluster
+
+
+		-------------
+
+redis> HSET myhash field1 "Hello"
+(integer) 1
+redis> HSET myhash field2 "World"
+(integer) 1
+redis> HVALS myhash
+1) "Hello"
+2) "World"
+redis> 
+
+
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis
+  namespace: rsmnsaddev
+  labels:
+    app: redis-load-balancer
+    type: LoadBalancer
+spec:
+  ports:
+    - name: client
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
+    - name: gossip
+      protocol: TCP
+      port: 16379
+      targetPort: 16379
+  selector:
+    app: redis-load-balancer
+  clusterIP: 100.126.143.7
+  type: ClusterIP
+  sessionAffinity: None
+  
+  
+  kind: Service
+  apiVersion: v1
+  metadata:
+    name: redis-load-balancer
+    namespace: rsmnsaddev
+    labels:
+      app: redis-load-balancer
+  spec:
+    ports:
+      - name: client
+        protocol: TCP
+        port: 6379
+        targetPort: 6379
+      - name: gossip
+        protocol: TCP
+        port: 16379
+        targetPort: 16379
+    selector:
+      app: redis-load-balancer
+    clusterIP: None
+    type: ClusterIP
+    sessionAffinity: None
+  
+
+--------------------------------------
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis-cluster
+  namespace: stock
+spec:
+  ports:
+    - name: client
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
+    - name: gossip
+      protocol: TCP
+      port: 16379
+      targetPort: 16379
+  selector:
+    app: redis-cluster
+  type: ClusterIP
+  sessionAffinity: None
+
+--------------------------------------
+	TEK SERVICE
+	
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis
+  namespace: rsmnsadsat
+spec:
+  ports:
+    - name: client
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
+    - name: gossip
+      protocol: TCP
+      port: 16379
+      targetPort: 16379
+  selector:
+    app: redis
+  clusterIP: 100.126.102.132
+  type: ClusterIP
+  sessionAffinity: None
+
+	
+	
+	
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: redis
+  namespace: rsmnsadsat
+data:
+  fix-ip.sh: >
+    #!/bin/sh
+
+    CLUSTER_CONFIG="/data/nodes.conf"
+
+    echo "creating nodes"
+
+    if [ -f ${CLUSTER_CONFIG} ]; then
+      echo "[ INFO ]File:${CLUSTER_CONFIG} is Found"
+    else
+      touch $CLUSTER_CONFIG
+    fi
+
+    if [ -z "${POD_IP}" ]; then
+      echo "Unable to determine Pod IP address!"
+      exit 1
+    fi
+
+    echo "Updating my IP to ${POD_IP} in ${CLUSTER_CONFIG}"
+
+    sed -i.bak -e "/myself/
+    s/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/${POD_IP}/"
+    ${CLUSTER_CONFIG}
+
+    echo "done"
+
+    exec "$@"
+  redis.conf: |
+    bind 0.0.0.0
+    cluster-enabled yes
+    cluster-require-full-coverage no
+    cluster-node-timeout 15000
+    cluster-config-file /data/nodes.conf
+    cluster-migration-barrier 1
+    appendonly yes
+    protected-mode no
+    requirepass Redis1234
+    masterauth Redis1234
+    port 6379
+	
+------------------------------------------
+	spring:
+	  redis:
+	    clusterEnabled: true
+	    host: redis
+	    password: Redis1234
+	    cluster:
+	      nodes: 100.127.23.81:6379,100.127.7.180:6379,100.127.2.144:6379,100.127.26.230:6379,100.127.6.77:6379,100.127.1.238:6379
+	      timeout: 20000
+	      max-redirects: 8
+
+
+------------------------------------------------
+	
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: redis-cluster
+  namespace: stock
+  labels:
+    app: redis-cluster
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: redis-cluster
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: redis-cluster
+    spec:
+      volumes:
+        - name: conf
+          configMap:
+            name: redis-cluster
+            defaultMode: 493
+      containers:
+        - resources: {}
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - '-c'
+                - redis-cli -h $(hostname) -a $REDIS_PASSWORD ping
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: redis
+          command:
+            - /conf/fix-ip.sh
+            - redis-server
+		  args:
+		    - /conf/redis.conf
+		    - '--cluster-announce-ip'
+		    - $(POD_IP)
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - '-c'
+                - redis-cli -h $(hostname) -a $REDIS_PASSWORD ping
+            initialDelaySeconds: 20
+            timeoutSeconds: 1
+            periodSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: database-password
+          ports:
+            - name: client
+              containerPort: 6379
+              protocol: TCP
+            - name: gossip
+              containerPort: 16379
+              protocol: TCP
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: conf
+              mountPath: /conf
+            - name: data
+              mountPath: /data
+          terminationMessagePolicy: File
+          image: 'redis:5-alpine'
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  volumeClaimTemplates:
+    - kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: data
+        creationTimestamp: null
+        labels:
+          name: redis-cluster
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  serviceName: redis-cluster
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  revisionHistoryLimit: 10
+
+------------------------------------------------
+	
+	kind: StatefulSet
+	apiVersion: apps/v1
+	metadata:
+	  name: redis
+	  namespace: rsmnsadsat
+	spec:
+	  replicas: 6
+	  selector:
+	    matchLabels:
+	      app: redis
+	  template:
+	    metadata:
+	      creationTimestamp: null
+	      labels:
+	        app: redis
+	    spec:
+	      volumes:
+	        - name: conf
+	          configMap:
+	            name: redis
+	            defaultMode: 493
+	      containers:
+	        - resources: {}
+	          readinessProbe:
+	            exec:
+	              command:
+	                - sh
+	                - '-c'
+	                - >-
+	                  test "$(redis-cli -h $(hostname) -a $REDIS_PASSWORD ping)" ==
+	                  "PONG"
+	            initialDelaySeconds: 15
+	            timeoutSeconds: 5
+	            periodSeconds: 10
+	            successThreshold: 1
+	            failureThreshold: 3
+	          terminationMessagePath: /dev/termination-log
+	          name: redis
+	          command:
+	            - /conf/fix-ip.sh
+	            - redis-server
+	            - /conf/redis.conf
+	          livenessProbe:
+	            exec:
+	              command:
+	                - sh
+	                - '-c'
+	                - >-
+	                  test "$(redis-cli -h $(hostname) -a $REDIS_PASSWORD ping)" ==
+	                  "PONG"
+	            initialDelaySeconds: 20
+	            timeoutSeconds: 1
+	            periodSeconds: 3
+	            successThreshold: 1
+	            failureThreshold: 3
+	          env:
+	            - name: POD_IP
+	              valueFrom:
+	                fieldRef:
+	                  apiVersion: v1
+	                  fieldPath: status.podIP
+	            - name: REDIS_PASSWORD
+	              valueFrom:
+	                secretKeyRef:
+	                  name: redis
+	                  key: database-password
+	            - name: TZ
+	              value: Europe/Istanbul
+	          ports:
+	            - name: client
+	              containerPort: 6379
+	              protocol: TCP
+	            - name: gossip
+	              containerPort: 16379
+	              protocol: TCP
+	          imagePullPolicy: IfNotPresent
+	          volumeMounts:
+	            - name: conf
+	              mountPath: /conf
+	            - name: data
+	              mountPath: /data
+	          terminationMessagePolicy: File
+	          image: 'redis:5-alpine'
+	      restartPolicy: Always
+	      terminationGracePeriodSeconds: 30
+	      dnsPolicy: ClusterFirst
+	      securityContext: {}
+	      schedulerName: default-scheduler
+	  volumeClaimTemplates:
+	    - kind: PersistentVolumeClaim
+	      apiVersion: v1
+	      metadata:
+	        name: data
+	        creationTimestamp: null
+	        labels:
+	          name: redis
+	      spec:
+	        accessModes:
+	          - ReadWriteOnce
+	        resources:
+	          requests:
+	            storage: 1Gi
+	        volumeMode: Filesystem
+	      status:
+	        phase: Pending
+	  serviceName: redis
+	  podManagementPolicy: OrderedReady
+	  updateStrategy:
+	    type: RollingUpdate
+	    rollingUpdate:
+	      partition: 0
+	  revisionHistoryLimit: 10
+	
+
+
+
+----------------------------------------
+	REPLICA ŞEKLİNDE
+	
+ANA REDIS	
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: redis
+  namespace: rsmnsaddev
+  labels:
+    name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: redis
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        name: redis
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: redis-pvc
+      containers:
+        - resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+          terminationMessagePath: /dev/termination-log
+          name: redis
+          command:
+            - redis-server
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          terminationMessagePolicy: File
+          image: 'redis:3.2.0-alpine'
+          args:
+            - '--protected-mode'
+            - 'no'
+            - '--port'
+            - '6379'
+            - '--requirepass'
+            - Redis1234
+            - '--masterauth'
+            - Redis1234
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      subdomain: redis
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+  
+REPLICA REDIS
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: redis-replica
+  namespace: rsmnsaddev
+  labels:
+    name: redis-replica
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: redis-replica
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        name: redis-replica
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: redis-replica-pvc
+      containers:
+        - resources: {}
+          terminationMessagePath: /dev/termination-log
+          name: redis
+          command:
+            - redis-server
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: database-password
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          terminationMessagePolicy: File
+          image: 'redis:3.2.0-alpine'
+          args:
+            - '--slaveof'
+            - redis.rsmnsaddev.svc.cluster.local
+            - '6379'
+            - '--protected-mode'
+            - 'no'
+            - '--requirepass'
+            - Redis1234
+            - '--masterauth'
+            - Redis1234
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      subdomain: redis-replica
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+
+
+oc describe serviceaccount heapster -n rsmnsaddev
+
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: redis-pvc
+  namespace: rsmnsaddev
+  finalizers:
+    - kubernetes.io/pvc-protection
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ocs-storagecluster-cephfs
+  volumeMode: Filesystem
+status:
+  phase: Bound
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    storage: 1Gi
+  
+  
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: redis-replica-pvc
+  namespace: rsmnsaddev
+  finalizers:
+    - kubernetes.io/pvc-protection
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ocs-storagecluster-cephfs
+  volumeMode: Filesystem
+status:
+  phase: Bound
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    storage: 1Gi
+	
+
+
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis
+  namespace: rsmnsaddev
+spec:
+  ports:
+    - name: redis
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
+  selector:
+    name: redis
+  type: LoadBalancer
+  sessionAffinity: None
+  externalTrafficPolicy: Cluster
+
+
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis-replica
+  namespace: rsmnsaddev
+spec:
+  ports:
+    - name: redis
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
+  selector:
+    name: redis-replica
+  type: LoadBalancer
+  sessionAffinity: None
+  externalTrafficPolicy: Cluster
+
+
+
+-----------------------------------------------
+
+Kıvanç güler
+Burak vardar
+
+Tanzu application catalog
+Tanzu build service
+
+Guest cluster
+
+containerD docker farkı ??? docker neden gözden düştü 
+
+Vanilla Kubernetes
+
+nsxd vLan farkı
+
+
+
+
+ID000458: The current Identity 'monitor' does not have permission to do this. (action: CREATE_DASHBOARDS entity: ACCOUNT 0)
+
+
+
+Loglama da filtre koddan yapılacak
+ama mdc gibi session id eklenebilir 
+
+redis ürünleri ne zaman basalım teste başlasam iyi olur
+
+ansible dan mı gideyim yoksa 
+
+tanzu daki güzellikler ve service mesh i deneyebilir miyiz?
+
+
+
+
+https://botworkflows.webex.com/embed/run/99602d28a8e179d2160112
+
+
+
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis
+  namespace: rsmnsaddev
+  selfLink: /api/v1/namespaces/rsmnsaddev/services/redis
+  uid: 61a50b33-bb58-4bea-baa3-3d93f2aca3fe
+  resourceVersion: '214169140'
+  creationTimestamp: '2020-08-24T15:15:29Z'
+  labels:
+    template: redis-persistent-template
+    template.openshift.io/template-instance-owner: 4f5710aa-de02-4973-957b-f022eafd1707
+  annotations:
+    template.openshift.io/expose-uri: 'redis://{.spec.clusterIP}:{.spec.ports[?(.name=="redis")].port}'
+spec:
+  ports:
+    - name: redis
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
+  selector:
+    name: redis
+  clusterIP: 100.126.0.29
+  type: ClusterIP
+  sessionAffinity: None
+status:
+  loadBalancer: {}
+
+
+
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: redis
+  namespace: rsmnsadsat
+  selfLink: /api/v1/namespaces/rsmnsadsat/configmaps/redis
+  uid: fe366390-e209-4459-b025-cb502bf69333
+  resourceVersion: '1136274791'
+  creationTimestamp: '2021-06-11T15:34:26Z'
+  managedFields:
+    - manager: Mozilla
+      operation: Update
+      apiVersion: v1
+      time: '2021-06-25T11:27:59Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:data':
+          .: {}
+          'f:fix-ip.sh': {}
+          'f:redis.conf': {}
+data:
+  fix-ip.sh: >
+    #!/bin/sh
+
+    CLUSTER_CONFIG="/data/nodes.conf"
+
+    echo "creating nodes"
+
+    if [ -f ${CLUSTER_CONFIG} ]; then
+      echo "[ INFO ]File:${CLUSTER_CONFIG} is Found"
+    else
+      touch $CLUSTER_CONFIG
+    fi
+
+    if [ -z "${POD_IP}" ]; then
+      echo "Unable to determine Pod IP address!"
+      exit 1
+    fi
+
+    echo "Updating my IP to ${POD_IP} in ${CLUSTER_CONFIG}"
+
+    sed -i.bak -e "/myself/
+    s/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/${POD_IP}/"
+    ${CLUSTER_CONFIG}
+
+    echo "done"
+
+    exec "$@"
+  redis.conf: |
+    bind 0.0.0.0
+    cluster-enabled yes
+    cluster-require-full-coverage no
+    cluster-node-timeout 15000
+    cluster-config-file /data/nodes.conf
+    cluster-migration-barrier 1
+    appendonly yes
+    protected-mode no
+    requirepass Redis1234
+    masterauth Redis1234
+    port 6379
+    notify-keyspace-events KEA
+
+
+
+
+
+sudo lsof -i :8086
+kill -9 61995
+
+
+
+
+curl --request POST 
+--url http://localhost:8080/actuator/threaddump
+--header 'Authorization: Bearer eyJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiZGlyIn0..FT0eMVMetx-HP67YFmsoEg.5Y_IN2mu0tNc1EahxtWHJ_3XPZJTC90KkB2dAAUGpAznfRssxTIPL1b50UrBDldaCtmUszn9DPE0wj3Qla1qxVwy5p3adjVhY_jkQlJ3VzOnohvwOyPsNL4ILLsL5UJOkcmGbnMBceLEgJez7FYMiGVPzFxjVHji0-KMjyTtn5BIQTsP23mIEcG4BLfDKJXUfms6BVB9DJi2nvfm7jCaAQ.X0C11jQLvFER3qhlcmxbjKaiseE9nDtsRhkwg8jz63Y' 
+--header 'Content-Type: application/json' 
+--cookie '4958562ae3d6acc90f9965b81fcfa1c6=dff1a42b87b7269ad9a169852e4ed17a; JSESSIONID=87607C1705CF0DA5DA18B42EEB98082C' 
+
+
+
+
+curl 'http://localhost:9080/actuator/threaddump' -i -X GET \
+    -H 'Accept: text/plain'
+	
+curl 'http://localhost:9080/actuator/heapdump' -O
+
+
+
+kubectl cp v2-siebel-service-10-ddtv2:/dump.hprof /dump.hprof
+
+kubectl exec -ti pods/v2-siebel-service-11-fbsr2 -n stock -- /bin/bash
